@@ -34,11 +34,14 @@ public CategoriesController(CategoryDao categoryDao, ProductDao productDao){
     }
 
     
+
     // add the appropriate annotation for a get action
+    @GetMapping
     public List<Category> getAll()
     {
         // find and return all categories
         return null;
+        return categoryDao.getAllCategories();
     }
 
     // add the appropriate annotation for a get action
