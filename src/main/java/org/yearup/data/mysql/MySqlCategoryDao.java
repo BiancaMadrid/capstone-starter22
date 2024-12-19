@@ -21,6 +21,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         super(dataSource);
     }
 
+    // get all categories
     @Override
     public List<Category> getAllCategories()
     {
@@ -30,6 +31,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         List<Category> categories = new ArrayList<>();
 
         try(Connection connection = getDataSource.getConnection();
+        try(Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery()) {
 
@@ -102,6 +104,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         String sql = "UPDATE categories SET name = ?, description = ? WHERE category_id = ?";
 
         try(Connection connection = getDataSource().getConnection();
+        try(Connection connection = getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)){
 
             statement.setString(1, category.getName());
@@ -124,6 +127,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
         try(Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)){
+        try(Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)){
 
             statement.setInt(1, categoryId);
             statement.executeUpdate();
