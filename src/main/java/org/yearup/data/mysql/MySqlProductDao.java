@@ -24,7 +24,16 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
         List<Product> products = new ArrayList<>();
 
         String sql = "SELECT DISTINCT * FROM products " +
+        //Updated: Default if null, Added Max
+        categoryId = (categoryId == null || categoryId == -1) ? -1 : categoryId;
+        minPrice = (minPrice == null) ? new BigDecimal("0") : minPrice; // Default to 0 if minPrice is null
+        maxPrice = (maxPrice == null) ? new BigDecimal("99999999") : maxPrice; // Default to a high value for maxPrice
+        color = (color == null || color.isEmpty()) ? "" : color;
+
+        //Fixing search method
+        String sql = "SELECT * FROM products " +
                 "WHERE (category_id = ? OR ? = -1) " +
+                "   AND (price >= ? OR ? = -1) " +
                 "   AND (price <= ? OR ? = -1) " +
                 "AND (price >= ? OR ? + -1)" +
                 "   AND (color = ? OR ? = '') ";
@@ -44,9 +53,15 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
             statement.setString(5, color);
             statement.setString(6, color);
             statement.setBigDecimal(5, maxPrice);
+<<<<<<< HEAD
+            statement.setBigDecimal(5, maxPrice); //added max.
             statement.setBigDecimal(6, maxPrice);
             statement.setString(7, color);
             statement.setString(8, color);
+=======
+            statement.setString(5, color);
+            statement.setString(6, color);
+>>>>>>> parent of b6710e4 (Fixed bug 2, to differentiate products and eliminate the chance for duplicate items)
 
             ResultSet row = statement.executeQuery();
 
@@ -67,10 +82,12 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     @Override
     public List<Product> listByCategoryId(int categoryId)
     {
+    public List<Product> listByCategoryId(int categoryId) {
         List<Product> products = new ArrayList<>();
 
         String sql = "SELECT * FROM products " +
                     " WHERE category_id = ? ";
+                " WHERE category_id = ? ";
 
         try (Connection connection = getConnection())
         {
@@ -97,6 +114,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     @Override
     public Product getById(int productId)
     {
+    public Product getById(int productId) {
         String sql = "SELECT * FROM products WHERE product_id = ?";
         try (Connection connection = getConnection())
         {
@@ -120,6 +138,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     @Override
     public Product create(Product product)
     {
+    public Product create(Product product) {
 
         String sql = "INSERT INTO products(name, price, category_id, description, color, image_url, stock, featured) " +
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
@@ -161,6 +180,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     @Override
     public void update(int productId, Product product)
     {
+    public void update(int productId, Product product) {
         String sql = "UPDATE products" +
                 " SET name = ? " +
                 "   , price = ? " +
