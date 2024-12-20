@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("products")
+@RequestMapping("/{products}")
 @CrossOrigin
 public class ProductsController
 {
@@ -31,6 +32,7 @@ public class ProductsController
                                 @RequestParam(name="maxPrice", required = false) BigDecimal maxPrice,
                                 @RequestParam(name="color", required = false) String color
                                 )
+    )
     {
         try
         {
@@ -82,6 +84,7 @@ public class ProductsController
         try
         {
             productDao.create(product);
+            productDao.update(id, product);  //had create instead of update
         }
         catch(Exception ex)
         {
@@ -93,6 +96,7 @@ public class ProductsController
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteProduct(@PathVariable int id)
     {
+    public void deleteProduct(@PathVariable int id) {
         try
         {
             var product = productDao.getById(id);
