@@ -52,10 +52,18 @@ public class ShoppingCartController {
         try
         {
             // get the currently logged in username
+    @GetMapping
+    public ShoppingCart getCart(Principal principal) {
+        try {
             String userName = principal.getName();
             // find database user by userId
+            logger.info("Fetching cart for user: {}", userName);
+
             User user = userDao.getByUserName(userName);
             int userId = user.getId();
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
 
             // use the shoppingcartDao to get all items in the cart and return the cart
             return null;
@@ -63,6 +71,13 @@ public class ShoppingCartController {
         catch(Exception e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+            ShoppingCart cart = shoppingCartDao.getByUserId(user.getId());
+
+            logger.info("Cart retrieved successfully for user: {}", userName);
+            return cart;
+        } catch (Exception e) {
+            logger.error("Error fetching cart", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to retrieve shopping cart.", e);
         }
     }
 
