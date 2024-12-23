@@ -83,6 +83,31 @@ public class ShoppingCartController {
 
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be added
+    @PostMapping("/products/{productId}")
+    public ResponseEntity<Void> addProductToCart(@PathVariable int productId, Principal principal) {
+        try {
+            if (productId <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID");
+            }
+
+            String userName = principal.getName();
+            User user = userDao.getByUserName(userName);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
+            if (productDao.getById(productId) == null) { // Fixed here
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+            }
+
+            shoppingCartDao.addProductToCart(user.getId(), productId);
+            logger.info("Product {} added to cart for user: {}", productId, userName);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            logger.error("Error adding product to cart", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to add product to cart.", e);
+        }
+    }
 
 
     // add a PUT method to update an existing product in the cart - the url should be
