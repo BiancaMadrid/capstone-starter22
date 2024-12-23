@@ -89,7 +89,17 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                     int categoryId = generatedKeys.getInt(1);
                     category.setCategoryId(categoryId);
                     return category;
+                    if(generatedKeys.next()){
+                        int categoryId = generatedKeys.getInt(1);
+                        category.setCategoryId(categoryId);
+                        return category;
+
+                    }else {
+                        throw new SQLException("Creating category failed, no id obtained" );
+                    }
                 }
+            }else{
+                throw new SQLException("Creating category failed, no rows affected." );
             }
 
         }catch (SQLException e){
@@ -126,6 +136,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
     {
         // delete category
         String sql = "DELETE FROM categories WHERE categorie_id = ?";
+        String sql = "DELETE FROM categories WHERE category_id = ?";
 
         try(Connection connection = getDataSource().getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)){
