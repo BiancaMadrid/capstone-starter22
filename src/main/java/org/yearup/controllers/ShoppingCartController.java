@@ -113,6 +113,32 @@ public class ShoppingCartController {
     // add a PUT method to update an existing product in the cart - the url should be
     // https://localhost:8080/cart/products/15 (15 is the productId to be updated)
     // the BODY should be a ShoppingCartItem - quantity is the only value that will be updated
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<Void> updateCartItem(@PathVariable int productId, @RequestBody ShoppingCartItem item, Principal principal) {
+        try {
+            if (productId <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid product ID");
+            }
+
+            if (item.getQuantity() < 1) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be at least 1");
+            }
+
+            String userName = principal.getName();
+            User user = userDao.getByUserName(userName);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
+
+            shoppingCartDao.updateProductQuantity(user.getId(), productId, item.getQuantity());
+            logger.info("Updated product {} to quantity {} for user: {}", productId, item.getQuantity(), userName);
+
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            logger.error("Error updating product in cart", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to update product in cart.", e);
+        }
+    }
 
 
     // add a DELETE method to clear all products from the current users cart
