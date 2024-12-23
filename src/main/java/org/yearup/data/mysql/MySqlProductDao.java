@@ -29,10 +29,13 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
         categoryId = (categoryId == null || categoryId == -1) ? -1 : categoryId;
         minPrice = (minPrice == null) ? new BigDecimal("0") : minPrice; // Default to 0 if minPrice is null
         maxPrice = (maxPrice == null) ? new BigDecimal("99999999") : maxPrice; // Default to a high value for maxPrice
+        minPrice = (minPrice == null) ? new BigDecimal("0") : minPrice;
+        maxPrice = (maxPrice == null) ? new BigDecimal("99999999") : maxPrice;
         color = (color == null || color.isEmpty()) ? "" : color;
 
         //Fixing search method
         String sql = "SELECT * FROM products " +
+        String sql = "SELECT DISTINCT * FROM products " +
                 "WHERE (category_id = ? OR ? = -1) " +
                 "   AND (price >= ? OR ? = -1) " +
                 "   AND (price <= ? OR ? = -1) " +
@@ -127,11 +130,15 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
             if (row.next())
             {
                 return mapRow(row);
+            if (row.next()) {
+                return mapRow(row); // Return the Product object
             }
         }
         catch (SQLException e)
         {
             throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error retrieving product ID: " + productId, e);
         }
         return null;
     }
@@ -217,6 +224,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     @Override
     public void delete(int productId)
     {
+    public void delete(int productId) {
 
         String sql = "DELETE FROM products " +
                 " WHERE product_id = ?;";
@@ -236,6 +244,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
 
     protected static Product mapRow(ResultSet row) throws SQLException
     {
+    protected static Product mapRow(ResultSet row) throws SQLException {
         int productId = row.getInt("product_id");
         String name = row.getString("name");
         BigDecimal price = row.getBigDecimal("price");
