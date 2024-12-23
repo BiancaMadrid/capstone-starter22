@@ -140,6 +140,28 @@ public class ShoppingCartController {
         }
     }
 
+
+    // add a DELETE method to clear all products from the current users cart
+    // https://localhost:8080/cart
+    @DeleteMapping
+    public ResponseEntity<Void> clearCart(Principal principal) {
+        try {
+            String userName = principal.getName();
+            User user = userDao.getByUserName(userName);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
+
+            shoppingCartDao.clearCart(user.getId());
+            logger.info("Cleared cart for user: {}", userName);
+
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            logger.error("Error clearing cart", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to clear cart.", e);
+        }
+    }
+
     // Paginated retrieval of shopping cart items
     @GetMapping("/items")
     public List<ShoppingCartItem> getCartItems(Principal principal) {
