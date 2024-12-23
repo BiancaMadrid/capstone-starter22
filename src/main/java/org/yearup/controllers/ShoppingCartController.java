@@ -140,7 +140,36 @@ public class ShoppingCartController {
         }
     }
 
+    // Paginated retrieval of shopping cart items
+    @GetMapping("/items")
+    public List<ShoppingCartItem> getCartItems(Principal principal) {
+        try {
+            // Retrieve the username for the currently authenticated user
+            String userName = principal.getName();
+            logger.info("Fetching all cart items for user: {}", userName);
 
+            // Find the user in the database
+            User user = userDao.getByUserName(userName);
+            if (user == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
+
+            // Fetch the shopping cart for the user
+            ShoppingCart cart = shoppingCartDao.getByUserId(user.getId());
+            if (cart == null || cart.getItems() == null) {
+                logger.info("No items found in the cart for user: {}", userName);
+                return List.of();
+            }
+
+            // Return the list of items in the cart
+            logger.info("Retrieved cart items successfully for user: {}", userName);
+            return new ArrayList<>(cart.getItems().values());
+        } catch (Exception e) {
+            logger.error("Error fetching cart items", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to retrieve cart items.", e);
+        }
+    }
+}
     // add a DELETE method to clear all products from the current users cart
     // https://localhost:8080/cart
     @DeleteMapping
